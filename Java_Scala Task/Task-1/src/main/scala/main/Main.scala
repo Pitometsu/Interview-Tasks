@@ -6,7 +6,7 @@ object Main extends App {
   type Occurrence = Map[Char, Int]
 
   object Occurrence {
-    def apply(char: Char*): Occurrence = Map[Char, Int](char map(_ -> 1) : _*) withDefaultValue 0
+    def apply(chars: Char*): Occurrence = Map[Char, Int](chars map(_ -> 1) : _*) withDefaultValue 0
   }
   /**
     * Calculate the frequency of occurrence of each character of English alphabet in the string (large and small characters count as the same).
