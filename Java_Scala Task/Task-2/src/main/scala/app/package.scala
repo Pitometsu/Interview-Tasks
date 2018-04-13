@@ -11,7 +11,7 @@ package object app {
     */
   type NameRefine = MatchesRegex[W.`"([0-9a-zA-Z_.-])+"`.T]
   /**
-    * `String` limited by `NameRefine`.
+    * `String` limited by [[NameRefine]].
     */
   type Name = String Refined NameRefine
 

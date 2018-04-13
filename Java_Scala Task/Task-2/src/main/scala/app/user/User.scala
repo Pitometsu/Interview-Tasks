@@ -25,11 +25,11 @@ final case class User(name: Name, level: Level, experience: Exp, plan: Plan) {
 
   private def levelUp: User = {
     lazy val nextLevel: Level = {
-      refineV[NonNegative](this.level.value + this.experience.value / app.level.value)
+      refineV[NonNegative](level.value + experience.value / app.level.value)
         .getOrElse(refineMV[NonNegative](0))
     }
     lazy val nextExperience: Exp = {
-      refineV[NonNegative](this.experience.value % app.level.value)
+      refineV[NonNegative](experience.value % app.level.value)
         .getOrElse(refineMV[NonNegative](0))
     }
 
@@ -37,7 +37,7 @@ final case class User(name: Name, level: Level, experience: Exp, plan: Plan) {
       .lens(_.level).set(nextLevel)
   }
 
-  def refresh: User = ((this.levelUp
+  def refresh: User = ((levelUp
     &|-> planChange
     ^<-? actionsChange).modify(app.refresh)
     &|-> planChange
