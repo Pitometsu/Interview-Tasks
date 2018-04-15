@@ -1,3 +1,5 @@
+package app
+
 import scala.language.implicitConversions
 
 package object stack {
@@ -9,7 +11,7 @@ package object stack {
   sealed trait TSStack[+T] {
     def +:[A >: T]: A => TSFull[A] = push[A]
     def push[A >: T](item: A): TSFull[A] = TSFull(item, this)
-    val pop: T
+    def unsafePop: (T, TSStack[T])
   }
   implicit def fromSeq[T](seq: Seq[T]): TSStack[T] = seq match {
     case Seq(top, rest@_*) => fromSeq(rest) push top
@@ -23,12 +25,14 @@ package object stack {
   class TSStackException(msg: String, cause: Option[Throwable] = None) extends Exception(msg, cause.orNull)
 
   final case class TSEmpty[T]() extends TSStack[T] {
-    lazy val pop: T = {
-      throw new TSStackException("Nothing left here, stack is empty like your life...")
+    def unsafePop: (T, TSEmpty[T]) = {
+      val message = "Nothing left here, stack is empty like a life without State Monad..."
+      throw new TSStackException(message)
     }
   }
   final case class TSFull[T](top: T, rest: TSStack[T]) extends TSStack[T] {
-    lazy val pop: T = top
+    def unsafePop: (T, TSStack[T]) = pop
+    def pop: (T, TSStack[T]) = (top, rest)
   }
   object TSStack {
     def apply[T](items: T*): TSStack[T] = fromSeq(items)
