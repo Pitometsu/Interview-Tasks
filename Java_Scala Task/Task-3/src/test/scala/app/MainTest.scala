@@ -1,7 +1,7 @@
 package app
 
 import org.scalatest.FunSpec
-import cats.data.State
+import cats.implicits._
 
 import app.stack._
 import app.main.Main._
@@ -23,8 +23,22 @@ class MainTest extends FunSpec {
       assert(popped == List(4, 3, 6))
     }
     it("may even hurt you, and break your heart") {
-      val emptyStack = TSEmpty()
-      assertThrows[TSStackException] { doTesting.run(emptyStack).value }
+      assertThrows[TSStackException] { doTesting.run(TSEmpty()).value }
+    }
+    describe("Infinity and beyond") {
+      it("might be safe") {
+        val doTesting2: ExcState[Int, List[Int]] = for {
+          _  <- doPushExc(0)
+          _  <- doPushExc(1)
+          p1 <- doPop()
+          p2 <- doPop()
+          p3 <- doPop()
+        } yield List(p1, p2, p3)
+        doTesting2.run(TSEmpty[Int]()) match {
+          case Left(exc) => println(exc.isInstanceOf[TSStackException])
+          case _ =>
+        }
+      }
     }
   }
 }

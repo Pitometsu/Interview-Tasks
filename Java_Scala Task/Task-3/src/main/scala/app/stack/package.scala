@@ -9,8 +9,21 @@ package object stack {
     * @tparam T the type of stack element
     */
   sealed trait TSStack[+T] {
+    /** Synonym for [[push]]. */
     def +:[A >: T]: A => TSFull[A] = push[A]
+
+    /**
+      * Push an item into the stack.
+      * @param item to push
+      * @tparam A the type of item match stack content type
+      * @return a new stack with the new item.
+      */
     def push[A >: T](item: A): TSFull[A] = TSFull(item, this)
+    /**
+      * Pop a top item from the stack.
+      * @throws TSStackException if stack is `TSEmpty`
+      * @return a new stack without the new item.
+      */
     def unsafePop: (T, TSStack[T])
   }
   implicit def fromSeq[T](seq: Seq[T]): TSStack[T] = seq match {
@@ -22,7 +35,8 @@ package object stack {
     case Vector(top, rest@_*) => fromSeq(rest) push top
     case _ => TSEmpty[T]()
   }
-  class TSStackException(msg: String, cause: Option[Throwable] = None) extends Exception(msg, cause.orNull)
+  class TSStackException(msg: String, cause: Option[Throwable] = None)
+    extends Exception(msg, cause.orNull)
 
   final case class TSEmpty[T]() extends TSStack[T] {
     def unsafePop: (T, TSEmpty[T]) = {
@@ -38,7 +52,7 @@ package object stack {
     def apply[T](items: T*): TSStack[T] = fromSeq(items)
   }
   type +:[T] = TSFull[T]
-  final case class FSTop[+T](item: T) { // ???: private
+  private[stack] final case class FSTop[+T](item: T) {
     def :+[A >: T](rest: TSStack[A]): TSFull[A] = TSFull(item, rest)
   }
   implicit def toFSTop[T](value: T): FSTop[T] = new FSTop[T](value)
